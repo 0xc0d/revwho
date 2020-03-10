@@ -28,5 +28,5 @@ Search for `John Doe` and `johndoe@yahoo.com` quietly and save output to `output
     
 ## Contact Info
 * [Telegram](https://t.me/aggr3ssor)
-* [Twitter](twitter.com/aggr3sor)
+* [Twitter](https://twitter.com/aggr3sor)
 * [Email](mailto:aggr3ssor@protonmail.com)
