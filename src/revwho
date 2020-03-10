@@ -1,0 +1,92 @@
+#!/usr/bin/env python3
+
+import cfscrape
+from lxml import html 
+import argparse
+import os
+
+request = cfscrape.create_scraper(delay=10)
+
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+class Revwho():
+    def __init__(self):
+        self.urls = list()
+        self.terms = list()
+
+    def setTerms(self, terms):
+        self.terms = terms
+
+    def search(self):
+        for term in self.terms:
+            r = request.get(f"https://viewdns.info/reversewhois/?q={term.replace(' ', '+')}")
+            root = html.fromstring(r.text)
+            ex = '/html/body/font/table[2]/tr[3]/td/font/table'
+            if root.xpath(ex):
+                for _ in root.xpath(ex)[0].getchildren()[1:]:
+                    self.urls.append('https://'+_.getchildren()[0].text)
+
+        self.total = len(set(self.urls))
+    
+    def output(self, outputfile):
+        header = f'{self.total} domains found for {", ".join(self.terms)}.'
+        with open(outputfile, 'w') as out:
+            out.write(header+'\n')
+            out.write('='*30+'\n')
+            for _ in set(self.urls):
+                out.write(_+'\n')
+        print()
+        print(f'result saved: {outputfile}')
+
+    def verbose(self):
+        header = f'{self.total} domains found for {", ".join(self.terms)}.'
+        print(bcolors.OKBLUE + header + bcolors.ENDC)
+        if self.total: print(bcolors.FAIL + '='*30 + bcolors.ENDC)
+
+        for _ in set(self.urls):
+            print(bcolors.OKGREEN + _ + bcolors.ENDC)
+
+def banner():
+    os.system('clear')
+    print(bcolors.HEADER + '''
+  aggr3ssor@pm.me         _           
+ _ __ _____   ____      _| |__   ___  
+| '__/ _ \ \ / /\ \ /\ / / '_ \ / _ \ 
+| | |  __/\ V /  \ V  V /| | | | (_) |
+|_|  \___| \_/    \_/\_/ |_| |_|\___/                                     
+    ''' + bcolors.ENDC)
+
+def main():
+    desc = "do reverse whois for term(s) specified and returns a list of domains for that term(s). " 
+
+    parser = argparse.ArgumentParser(description=desc)
+
+    parser.add_argument('--terms', '-t', dest='term', nargs='*',
+                        help="single term or space separated terms", required=True)
+
+    parser.add_argument('--output', '-o', dest='outputfile', nargs=1,
+                        help="Output to save scan results.", required=False)
+
+    parser.add_argument('--quiet', '-q', dest='quiet', action="store_true",
+                        help="Enable quiet/silent mode (only show warnings and errors).", required=False)
+
+    args = parser.parse_args()
+
+    if not args.quiet: banner()
+
+    query = Revwho()
+    query.setTerms(args.term)
+    query.search()
+    if not args.quiet: query.verbose()
+    if args.outputfile: query.output(args.outputfile[0])
+
+if __name__ == "__main__":
+    main()
