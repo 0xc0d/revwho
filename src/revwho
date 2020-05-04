@@ -19,7 +19,7 @@ class bcolors:
 
 class Revwho():
     def __init__(self):
-        self.urls = list()
+        self.row = dict()
         self.terms = list()
 
     def setTerms(self, terms):
@@ -32,36 +32,49 @@ class Revwho():
             ex = '/html/body/font/table[2]/tr[3]/td/font/table'
             if root.xpath(ex):
                 for _ in root.xpath(ex)[0].getchildren()[1:]:
-                    self.urls.append('https://'+_.getchildren()[0].text)
+                    domain = _.getchildren()[0].text
+                    if _.getchildren()[1].text:
+                        date = _.getchildren()[1].text
+                    else:
+                        data = ""
 
-        self.total = len(set(self.urls))
-    
+                    if _.getchildren()[2].text:
+                        registrar = _.getchildren()[2].text
+                    else:
+                        registrar = ""
+
+                    self.row[domain] = [date, registrar]
+
+        self.total = len(self.row)
+
     def output(self, outputfile):
         header = f'{self.total} domains found for {", ".join(self.terms)}.'
+        header += '\nDomain Name              Creation Date    Registrar'
         with open(outputfile, 'w') as out:
             out.write(header+'\n')
-            out.write('='*30+'\n')
-            for _ in set(self.urls):
-                out.write(_+'\n')
+            out.write('='*60+'\n')
+            for domain, (date, registrar) in self.row.items():
+                out.write("{0}{1:25}{2:17}{3}{4}".format(bcolors.OKGREEN, domain, date, registrar, bcolors.ENDC))
         print()
         print(f'result saved: {outputfile}')
 
     def verbose(self):
         header = f'{self.total} domains found for {", ".join(self.terms)}.'
+        header += '\nDomain Name              Creation Date    Registrar'
         print(bcolors.OKBLUE + header + bcolors.ENDC)
-        if self.total: print(bcolors.FAIL + '='*30 + bcolors.ENDC)
+        if self.total: print(bcolors.FAIL + '='*60 + bcolors.ENDC)
 
-        for _ in set(self.urls):
-            print(bcolors.OKGREEN + _ + bcolors.ENDC)
+        for domain, (date, registrar) in self.row.items():
+            print("{0}{1:25}{2:17}{3}{4}".format(bcolors.OKGREEN, domain, date, registrar, bcolors.ENDC))
 
 def banner():
     os.system('clear')
     print(bcolors.HEADER + '''
-  aggr3ssor@pm.me         _           
- _ __ _____   ____      _| |__   ___  
-| '__/ _ \ \ / /\ \ /\ / / '_ \ / _ \ 
+  https://twitter/0xc0d   _
+ _ __ _____   ____      _| |__   ___
+| '__/ _ \ \ / /\ \ /\ / / '_ \ / _ \
 | | |  __/\ V /  \ V  V /| | | | (_) |
-|_|  \___| \_/    \_/\_/ |_| |_|\___/                                     
+|_|  \___| \_/    \_/\_/ |_| |_|\___/
     ''' + bcolors.ENDC)
 
 def main():
