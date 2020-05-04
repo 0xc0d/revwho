@@ -36,7 +36,7 @@ class Revwho():
                     if _.getchildren()[1].text:
                         date = _.getchildren()[1].text
                     else:
-                        data = ""
+                        date = ""
 
                     if _.getchildren()[2].text:
                         registrar = _.getchildren()[2].text

@@ -33,10 +33,11 @@ class Revwho():
             if root.xpath(ex):
                 for _ in root.xpath(ex)[0].getchildren()[1:]:
                     domain = _.getchildren()[0].text
+                    print(domain, _.getchildren()[1].text)
                     if _.getchildren()[1].text:
                         date = _.getchildren()[1].text
                     else:
-                        data = ""
+                        date = " "
 
                     if _.getchildren()[2].text:
                         registrar = _.getchildren()[2].text
