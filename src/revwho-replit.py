@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import cfscrape
-from lxml import html 
+from lxml import html
 import argparse
 import os
 
@@ -47,17 +47,6 @@ class Revwho():
 
         self.total = len(self.row)
 
-    def output(self, outputfile):
-        header = f'{self.total} domains found for {", ".join(self.terms)}.'
-        header += '\nDomain Name              Creation Date    Registrar'
-        with open(outputfile, 'w') as out:
-            out.write(header+'\n')
-            out.write('='*60+'\n')
-            for domain, (date, registrar) in self.row.items():
-                out.write("{0}{1:25}{2:17}{3}{4}".format(bcolors.OKGREEN, domain, date, registrar, bcolors.ENDC))
-        print()
-        print(f'result saved: {outputfile}')
-
     def verbose(self):
         header = f'{self.total} domains found for {", ".join(self.terms)}.'
         header += '\nDomain Name              Creation Date    Registrar'
@@ -78,28 +67,24 @@ def banner():
     ''' + bcolors.ENDC)
 
 def main():
-    desc = "do reverse whois for term(s) specified and returns a list of domains for that term(s). " 
 
-    parser = argparse.ArgumentParser(description=desc)
 
-    parser.add_argument('--terms', '-t', dest='term', nargs='*',
-                        help="single term or space separated terms", required=True)
-
-    parser.add_argument('--output', '-o', dest='outputfile', nargs=1,
-                        help="Output to save scan results.", required=False)
-
-    parser.add_argument('--quiet', '-q', dest='quiet', action="store_true",
-                        help="Enable quiet/silent mode (only show warnings and errors).", required=False)
-
-    args = parser.parse_args()
-
-    if not args.quiet: banner()
+    banner()
+    print()
+    print("Enter Name and/or Email to search for domain")
+    terms = list()
+    while not len(terms):
+        name = input("Name: ")
+        if name:
+            terms.append(name)
+        email = input("Email: ")
+        if email:
+            terms.append(email)
 
     query = Revwho()
-    query.setTerms(args.term)
+    query.setTerms(terms)
     query.search()
-    if not args.quiet: query.verbose()
-    if args.outputfile: query.output(args.outputfile[0])
+    query.verbose()
 
 if __name__ == "__main__":
     main()
