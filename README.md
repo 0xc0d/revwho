@@ -1,7 +1,6 @@
 # Revwho
 A simple python tool to reverse search whois by name and email from free services
 
-## Run on repl.it
 [![Run on Repl.it](https://repl.it/badge/github/0xc0d/revwho)](https://repl.it/@Aggr3ssor/revwho)
 
 ## Install
